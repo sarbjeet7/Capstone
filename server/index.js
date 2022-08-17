@@ -1,35 +1,30 @@
-const express = require("express");
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
+const cors = require('cors');
+
 const app = express();
-const mongoose = require("mongoose");
-const UserModel = require("./models/Users");
-
-const cors = require("cors");
-
+//use express.json() to get data into json format
 app.use(express.json());
+//Port 
+const PORT = process.env.PORT || 5500;
+
+//use cors
 app.use(cors());
 
-mongoose.connect(
-  "mongodb+srv://sarbjeet:sarbjeet123@cluster0.x3mhymw.mongodb.net/student?retryWrites=true&w=majority"
-  );
+// //import routes
+const TodoItemRoute = require('./routes/todoItems');
 
-app.get("/getUsers", (req, res) => {
-  UserModel.find({}, (err, result) => {
-    if (err) {
-      res.json(err);
-    } else {
-      res.json(result);
-    }
-  });
-});
 
-app.post("/createUser", async (req, res) => {
-  const user = req.body;
-  const newUser = new UserModel(user);
-  await newUser.save();
+// connect to mongodb ..
+mongoose.connect(process.env.DB_CONNECT)
+.then(()=> console.log("Database connected"))
+.catch(err => console.log(err))
 
-  res.json(user);
-});
 
-app.listen(3001, () => {
-  console.log("SERVER RUNS PERFECTLY!");
-});
+app.use('/', TodoItemRoute);
+
+
+
+//connect to server
+app.listen(PORT, ()=> console.log("Server connected") );
